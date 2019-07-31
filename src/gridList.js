@@ -136,29 +136,49 @@ GridList.prototype = {
     }
   },
 
+  fillGaps: function () {
+      this._pullItemsToLeft();
+  },
+
+  resolveCollisions: function(itemId) {
+    var itemToResolve = this.items.filter(function(item) {
+        return item.$element.children()[0].id == itemId;
+    })[0];
+    if(itemToResolve) {
+        this._resolveCollisions(itemToResolve);
+    }
+  },
+
   resizeGrid: function(lanes) {
     var currentColumn = 0;
-
+    var oldLanes = this._options.lanes;
     this._options.lanes = lanes;
     this._adjustSizeOfItems();
 
-    this._sortItemsByPosition();
-    this._resetGrid();
-
-    // The items will be sorted based on their index within the this.items array,
-    // that is their "1d position"
+    var lastRowHasElems = false;
     for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i],
-          position = this._getItemPosition(item);
-
-      this._updateItemPosition(
-        item, this.findPositionForItem(item, {x: currentColumn, y: 0}));
-
-      // New items should never be placed to the left of previous items
-      currentColumn = Math.max(currentColumn, position.x);
+        var position = this._getItemPosition(this.items[i]);
+        if(position.y + position.h >= lanes) lastRowHasElems = true;
     }
+    if(lastRowHasElems && oldLanes > lanes) {
+        this._sortItemsByPosition();
+        this._resetGrid();
 
-    this._pullItemsToLeft();
+        // The items will be sorted based on their index within the this.items array,
+        // that is their "1d position"
+        for (var i = 0; i < this.items.length; i++) {
+            var item = this.items[i],
+                position = this._getItemPosition(item);
+
+            this._updateItemPosition(
+                item, this.findPositionForItem(item, {x: currentColumn, y: 0}));
+
+            // New items should never be placed to the left of previous items
+            currentColumn = Math.max(currentColumn, position.x);
+        }
+
+        this._pullItemsToLeft();
+    }
   },
 
   findPositionForItem: function(item, start, fixedRow) {
@@ -241,8 +261,6 @@ GridList.prototype = {
     this._updateItemSize(item, width, height);
 
     this._resolveCollisions(item);
-
-    this._pullItemsToLeft();
   },
 
   getChangedItems: function(initialItems, idAttribute) {
@@ -299,6 +317,10 @@ GridList.prototype = {
 
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
+
+      if(item.h > this._options.lanes) {
+        item.h = this._options.lanes;
+      }
 
       // This can happen only the first time items are checked.
       // We need the property to have a value for all the items so that the
@@ -477,7 +499,6 @@ GridList.prototype = {
     if (!this._tryToResolveCollisionsLocally(item)) {
       this._pullItemsToLeft(item);
     }
-    this._pullItemsToLeft();
   },
 
   _tryToResolveCollisionsLocally: function(item) {
@@ -570,7 +591,7 @@ GridList.prototype = {
           position = this._getItemPosition(item);
 
       // The fixed item keeps its exact position
-      if (fixedItem && item == fixedItem) {
+      if (fixedItem && (item == fixedItem || item.y < fixedItem.y || item.y > fixedItem.y + fixedItem.h - 1)) {
         continue;
       }
 

@@ -32,7 +32,7 @@
     draggableDefaults: {
       zIndex: 2,
       scroll: false,
-      containment: "parent"
+      containment: "false"
     },
 
     destroy: function() {
@@ -71,6 +71,21 @@
       this.render();
     },
 
+    autosize: function() {
+        this._calculateCellSize(true);
+        this.render();
+    },
+
+    fillGaps: function () {
+        this.gridList.fillGaps();
+        this.render();
+    },
+
+    resolveCollisions: function(itemId) {
+        this.gridList.resolveCollisions(itemId);
+        this.render();
+    },
+
     render: function() {
       this._applySizeToItems();
       this._applyPositionToItems();
@@ -101,7 +116,7 @@
       this.$positionHighlight = this.$element.find('.position-highlight').hide();
 
       this._initGridList();
-      this.reflow();
+      this.autosize();
 
       if (this.options.dragAndDrop) {
         // Init Draggable JQuery UI plugin for each of the list items
@@ -214,10 +229,18 @@
       }
     },
 
-    _calculateCellSize: function() {
+    _calculateCellSize: function(doAutoWidth) {
       if (this.options.direction === "horizontal") {
         this._cellHeight = Math.floor(this.$element.height() / this.options.lanes);
         this._cellWidth = this._cellHeight * this.options.widthHeightRatio;
+        if(doAutoWidth) {
+          var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
+                return item.x + item.w
+            }));
+          if(this._cellWidth * maxWidth > $('#grid-container').width()) {
+                this._cellWidth = ($('#grid-container').width()-20) / maxWidth;
+            }
+        }
       } else {
         this._cellWidth = Math.floor(this.$element.width() / this.options.lanes);
         this._cellHeight = this._cellWidth / this.options.widthHeightRatio;
@@ -243,7 +266,7 @@
         });
       }
       if (this.options.heightToFontSizeRatio) {
-        this.$items.css('font-size', this._fontSize);
+        //this.$items.css('font-size', this._fontSize);
       }
     },
 
@@ -262,8 +285,10 @@
       // Update the width of the entire grid container with enough room on the
       // right to allow dragging items to the end of the grid.
       if (this.options.direction === "horizontal") {
-        this.$element.width(
-          (this.gridList.grid.length + this._widestItem) * this._cellWidth);
+          var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
+              return item.x + item.w
+          }));
+        this.$element.width($(window).width());
       } else {
         this.$element.height(
           (this.gridList.grid.length + this._tallestItem) * this._cellHeight);
@@ -292,7 +317,7 @@
       row = Math.max(row, 0);
 
       if (this.options.direction === "horizontal") {
-        col = Math.min(col, this._maxGridCols);
+        //col = Math.min(col, this._maxGridCols);
         row = Math.min(row, this.options.lanes - item.h);
       } else {
         col = Math.min(col, this.options.lanes - item.w);
