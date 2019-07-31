@@ -11,7 +11,9 @@
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
-    "jasmine-node": "~1.13.1"
+    "jasmine-node": "~1.13.1",
+    "grunt": "^1.0.4",
+    "grunt-contrib-uglify": "^4.0.1"
   },
   "main": "src/gridList.js",
   "repository": {
@@ -19,6 +21,7 @@
     "url": "https://github.com/hootsuite/grid.git"
   },
   "scripts": {
-    "test": "jasmine-node --verbose spec"
+    "test": "jasmine-node --verbose spec",
+    "minify": "grunt"
   }
 }
