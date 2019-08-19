@@ -93,7 +93,9 @@
         removeElement: function (elementId) {
             var item = this._getItemById(elementId);
             item.$element.remove();
-            this.items = this.items.filter(el => el.id !== elementId);
+            this.items = this.items.filter(function (el) {
+                return el.id !== elementId;
+            });
         },
 
         _bindMethod: function (fn) {
