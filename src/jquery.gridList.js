@@ -91,7 +91,7 @@
         },
 
         removeElement: function (elementId) {
-            let item = this._getItemById(elementId);
+            var item = this._getItemById(elementId);
             item.$element.remove();
             this.items = this.items.filter(el => el.id !== elementId);
         },
