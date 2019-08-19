@@ -12,11 +12,10 @@
   var DraggableGridList = function(element, options, draggableOptions) {
     this.options = $.extend({}, this.defaults, options);
     this.draggableOptions = $.extend(
-      {}, this.draggableDefaults, draggableOptions);
+        {}, this.draggableDefaults, draggableOptions);
 
     this.$element = $(element);
     this._init();
-    this._bindEvents();
   };
 
   DraggableGridList.prototype = {
@@ -72,23 +71,29 @@
     },
 
     autosize: function() {
-        this._calculateCellSize(true);
-        this.render();
+      this._calculateCellSize(true);
+      this.render();
     },
 
     fillGaps: function () {
-        this.gridList.fillGaps();
-        this.render();
+      this.gridList.fillGaps();
+      this.render();
     },
 
     resolveCollisions: function(itemId) {
-        this.gridList.resolveCollisions(itemId);
-        this.render();
+      this.gridList.resolveCollisions(itemId);
+      this.render();
     },
 
     render: function() {
       this._applySizeToItems();
       this._applyPositionToItems();
+    },
+
+    removeElement(elementId) {
+      let item = this._getItemById(elementId);
+      item.$element.remove();
+      this.items = this.items.filter(el => el.id !== elementId);
     },
 
     _bindMethod: function(fn) {
@@ -108,9 +113,9 @@
       this.$items = this.$element.children(this.options.itemSelector);
       this.items = this._generateItemsFromDOM();
       this._widestItem = Math.max.apply(
-        null, this.items.map(function(item) { return item.w; }));
+          null, this.items.map(function(item) { return item.w; }));
       this._tallestItem = Math.max.apply(
-        null, this.items.map(function(item) { return item.h; }));
+          null, this.items.map(function(item) { return item.h; }));
 
       // Used to highlight a position an element will land on upon drop
       this.$positionHighlight = this.$element.find('.position-highlight').hide();
@@ -123,6 +128,7 @@
         // http://api.jqueryui.com/draggable/
         this.$items.draggable(this.draggableOptions);
       }
+      this._bindEvents();
     },
 
     _initGridList: function() {
@@ -162,8 +168,8 @@
     },
 
     _onDrag: function(event, ui) {
-      var item = this._getItemByElement(ui.helper),
-          newPosition = this._snapItemPositionToGrid(item);
+      var item = this._getItemByElement(ui.helper);
+      var newPosition = this._snapItemPositionToGrid(item);
 
       if (this._dragPositionChanged(newPosition)) {
         this._previousDragPosition = newPosition;
@@ -213,20 +219,25 @@
           y: Number($(element).attr('data-y')),
           w: Number($(element).attr('data-w')),
           h: Number($(element).attr('data-h')),
-          id: Number($(element).attr('data-id'))
+          id: $(element).attr('data-id')
         });
       });
       return items;
     },
 
-    _getItemByElement: function(element) {
+    _getItemByElement: function (element) {
       // XXX: this could be optimized by storing the item reference inside the
       // meta data of the DOM element
+      return this._getItemById($(element).attr('data-id'));
+    },
+
+    _getItemById: function (id) {
       for (var i = 0; i < this.items.length; i++) {
-        if (this.items[i].$element.is(element)) {
+        if (id === this.items[i].id) {
           return this.items[i];
         }
       }
+      console.warn(id + " not found!");
     },
 
     _calculateCellSize: function(doAutoWidth) {
@@ -235,11 +246,11 @@
         this._cellWidth = this._cellHeight * this.options.widthHeightRatio;
         if(doAutoWidth) {
           var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
-                return item.x + item.w
-            }));
+            return item.x + item.w
+          }));
           if(this._cellWidth * maxWidth > $('#grid-container').width()) {
-                this._cellWidth = ($('#grid-container').width()-20) / maxWidth;
-            }
+            this._cellWidth = ($('#grid-container').width()-20) / maxWidth;
+          }
         }
       } else {
         this._cellWidth = Math.floor(this.$element.width() / this.options.lanes);
@@ -285,13 +296,13 @@
       // Update the width of the entire grid container with enough room on the
       // right to allow dragging items to the end of the grid.
       if (this.options.direction === "horizontal") {
-          var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
-              return item.x + item.w
-          }));
+        var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
+          return item.x + item.w
+        }));
         this.$element.width($(window).width());
       } else {
         this.$element.height(
-          (this.gridList.grid.length + this._tallestItem) * this._cellHeight);
+            (this.gridList.grid.length + this._tallestItem) * this._cellHeight);
       }
     },
 
@@ -300,7 +311,7 @@
         return true;
       }
       return (newPosition[0] != this._previousDragPosition[0] ||
-              newPosition[1] != this._previousDragPosition[1]);
+          newPosition[1] != this._previousDragPosition[1]);
     },
 
     _snapItemPositionToGrid: function(item) {
@@ -358,7 +369,7 @@
         return;
       }
       this.options.onChange.call(
-        this, this.gridList.getChangedItems(this._items, '$element'));
+          this, this.gridList.getChangedItems(this._items, '$element'));
     }
   };
 
