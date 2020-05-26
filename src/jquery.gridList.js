@@ -180,14 +180,18 @@
             if (this._dragPositionChanged(newPosition)) {
                 this._previousDragPosition = newPosition;
 
-                // Regenerate the grid with the positions from when the drag started
-                GridList.cloneItems(this._items, this.items);
-                this.gridList.generateGrid();
+                if (this.localResolveSuccess === false) {
+                    // Regenerate the grid with the positions from when the drag started
+                    GridList.cloneItems(this._items, this.items);
+                    this.gridList.generateGrid();
+                } else {
+                    this._updateGridSnapshot();
+                }
 
                 // Since the items list is a deep copy, we need to fetch the item
                 // corresponding to this drag action again
                 item = this._getItemByElement(ui.helper);
-                this.gridList.moveItemToPosition(item, newPosition);
+                this.localResolveSuccess = this.gridList.moveItemToPosition(item, newPosition);
 
                 // Visually update item positions and highlight shape
                 this._applyPositionToItems();
@@ -196,6 +200,7 @@
         },
 
         _onStop: function (event, ui) {
+            this.localResolveSuccess = null;
             this._updateGridSnapshot();
             this._previousDragPosition = null;
 

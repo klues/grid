@@ -244,7 +244,7 @@
             });
 
             this._updateItemPosition(item, [position.x, position.y]);
-            this._resolveCollisions(item);
+            return this._resolveCollisions(item);
         },
 
         resizeItem: function (item, size) {
@@ -262,7 +262,7 @@
 
             this._updateItemSize(item, width, height);
 
-            this._resolveCollisions(item);
+            return this._resolveCollisions(item);
         },
 
         getChangedItems: function (initialItems, idAttribute) {
@@ -498,9 +498,11 @@
         },
 
         _resolveCollisions: function (item) {
-            if (!this._tryToResolveCollisionsLocally(item)) {
+            var localSuccess = this._tryToResolveCollisionsLocally(item);
+            if (!localSuccess) {
                 this._pullItemsToLeft(item);
             }
+            return localSuccess;
         },
 
         _tryToResolveCollisionsLocally: function (item) {
