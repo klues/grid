@@ -593,19 +593,17 @@
                     position = this._getItemPosition(item);
 
                 // The fixed item keeps its exact position
-                if (fixedItem && (item == fixedItem || item.y < fixedItem.y || item.y > fixedItem.y + fixedItem.h - 1)) {
+                if (fixedItem && (item === fixedItem)) {
                     continue;
                 }
 
-                var x = this._findLeftMostPositionForItem(item),
-                    newPosition = this.findPositionForItem(
-                        item, {x: x, y: 0}, position.y);
-
+                var x = this._findLeftMostPositionForItem(item, fixedItem);
+                var newPosition = this.findPositionForItem(item, {x: x, y: 0}, position.y);
                 this._updateItemPosition(item, newPosition);
             }
         },
 
-        _findLeftMostPositionForItem: function (item) {
+        _findLeftMostPositionForItem: function (item, fixedItem) {
             /**
              * When pulling items to the left, we need to find the leftmost position for
              * an item, with two considerations in mind:
@@ -626,7 +624,7 @@
 
                     var otherPosition = this._getItemPosition(otherItem);
 
-                    if (this.items.indexOf(otherItem) < this.items.indexOf(item)) {
+                    if (this.items.indexOf(otherItem) < this.items.indexOf(item) && otherItem !== fixedItem) {
                         tail = otherPosition.x + otherPosition.w;
                     }
                 }
