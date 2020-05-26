@@ -38,9 +38,12 @@
             this._unbindEvents();
         },
 
-        resize: function (lanes) {
+        resize: function (lanes, minColumns) {
             if (lanes) {
                 this.options.lanes = lanes;
+            }
+            if (minColumns) {
+                this.options.minColumns = minColumns;
             }
             this._createGridSnapshot();
             this.gridList.resizeGrid(this.options.lanes);
@@ -66,7 +69,7 @@
         },
 
         reflow: function () {
-            this._calculateCellSize();
+            this._calculateCellSize(true);
             this.render();
         },
 
@@ -259,9 +262,8 @@
                     var maxWidth = Math.max.apply(Math, this.items.map(function (item) {
                         return item.x + item.w
                     }));
-                    if (this._cellWidth * maxWidth > $('#grid-container').width()) {
-                        this._cellWidth = ($('#grid-container').width() - 20) / maxWidth;
-                    }
+                    maxWidth = Math.max(maxWidth, this.options.minColumns);
+                    this._cellWidth = ($('#grid-container').width() - 20) / maxWidth;
                 }
             } else {
                 this._cellWidth = Math.floor(this.$element.width() / this.options.lanes);
