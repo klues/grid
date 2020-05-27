@@ -160,7 +160,9 @@
             var lastRowHasElems = false;
             for (var i = 0; i < this.items.length; i++) {
                 var position = this._getItemPosition(this.items[i]);
-                if (position.y + position.h >= lanes) lastRowHasElems = true;
+                if (position.y + position.h >= oldLanes) {
+                    lastRowHasElems = true;
+                }
             }
             if (lastRowHasElems && oldLanes > lanes) {
                 this._sortItemsByPosition();
